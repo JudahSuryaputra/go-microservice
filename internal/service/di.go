@@ -2,6 +2,7 @@ package service
 
 import (
 	"go-microservice/internal/service/data"
+	"go-microservice/internal/service/platform"
 	"go.uber.org/dig"
 )
 
@@ -9,13 +10,13 @@ type (
 	Holder struct {
 		dig.In
 
-		PlatformService Service
+		PlatformService platform.Service
 		DataService     data.Service
 	}
 )
 
 func Register(container *dig.Container) error {
-	if err := container.Provide(NewPlatformService); err != nil {
+	if err := container.Provide(platform.NewPlatformService); err != nil {
 		return err
 	}
 	if err := container.Provide(data.NewDataService); err != nil {

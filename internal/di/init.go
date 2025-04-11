@@ -17,8 +17,10 @@ func init() {
 	if err := Container.Provide(config.New); err != nil {
 		panic(err)
 	}
-
 	if err := Container.Provide(NewORM); err != nil {
+		panic(err)
+	}
+	if err := Container.Provide(NewRedisClient); err != nil {
 		panic(err)
 	}
 

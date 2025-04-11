@@ -19,7 +19,7 @@ func NewPlatformController(services service.Holder, deps shared.Deps) (*Platform
 }
 
 func (c *PlatformController) CheckSelf(ctx echo.Context) error {
-	resp, err := c.services.PlatformService.HealthCheck()
+	resp, err := c.services.PlatformService.HealthCheck(ctx.Request().Context())
 	if err != nil {
 		return err
 	}

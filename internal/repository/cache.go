@@ -2,31 +2,40 @@ package repository
 
 import (
 	"context"
-	"github.com/redis/go-redis/v9"
+	"fmt"
 	"go-microservice/internal/shared"
 )
 
 type (
 	CacheRepository interface {
-		SetValue(client *redis.Client, key string, value string) error
-		GetValue(client *redis.Client, key string) (string, error)
+		CheckHealth(ctx context.Context) (string, error)
+		Save(ctx context.Context, key string, value string) error
+		Get(ctx context.Context, key string) (string, error)
 	}
 
-	implCacheRepository struct {
+	cacheRepository struct {
 		deps shared.Deps
 	}
 )
 
 func NewCacheRepository(deps shared.Deps) CacheRepository {
-	return &implCacheRepository{deps: deps}
+	return &cacheRepository{deps: deps}
 }
 
-func (c *implCacheRepository) SetValue(client *redis.Client, key string, value string) error {
-	ctx := context.Background()
-	return client.Set(ctx, key, value, 0).Err()
+func (r *cacheRepository) CheckHealth(ctx context.Context) (string, error) {
+	result, err := r.deps.RedisClient.Ping(ctx).Result()
+	fmt.Printf("Redis ping result: %v\n", result)
+	if err != nil {
+		return "", err
+	}
+	return result, nil
 }
 
-func (c *implCacheRepository) GetValue(client *redis.Client, key string) (string, error) {
-	ctx := context.Background()
-	return client.Get(ctx, key).Result()
+func (r *cacheRepository) Save(ctx context.Context, key string, value string) error {
+	r.deps.RedisClient.Set(ctx, key, value, 36000000)
+	return nil
+}
+
+func (r *cacheRepository) Get(ctx context.Context, key string) (string, error) {
+	return r.deps.RedisClient.Get(ctx, key).Result()
 }

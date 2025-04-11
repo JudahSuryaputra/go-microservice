@@ -1,6 +1,9 @@
 package di
 
 import (
+	"context"
+	"fmt"
+	"github.com/redis/go-redis/v9"
 	"go-microservice/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -16,4 +19,16 @@ func NewORM(cfg *config.Configuration) *gorm.DB {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	return db
+}
+
+func NewRedisClient(cfg *config.Configuration) *redis.Client {
+	client := redis.NewClient(&redis.Options{
+		Addr: cfg.RedisServer,
+	})
+	result, err := client.Ping(context.Background()).Result()
+	fmt.Printf("Redis ping result: %v\n", result)
+	if err != nil {
+		panic(err)
+	}
+	return client
 }

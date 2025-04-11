@@ -28,12 +28,13 @@ func Register(container *dig.Container) error {
 }
 
 func (h *Holder) SetupRoutes(app *echo.Echo) {
-	//setup routes here
-
 	// check app health
-	test := app.Group("/health")
-	{
-		test.GET("", h.PlatformController.CheckSelf)
-	}
+	app.GET("/health", h.PlatformController.CheckSelf)
 
+	/*
+		v1 := app.Group("/v1")
+		{
+			v1.GET("/data")
+		}
+	*/
 }

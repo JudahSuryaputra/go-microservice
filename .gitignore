@@ -6,13 +6,8 @@ vendor/
 *.idea
 *.iml
 
-payment-service
-*.log
-main
-
 .env
-dist/*
-.template
+.gitignore
 
 !command/*
 *.yaml

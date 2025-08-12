@@ -9,6 +9,7 @@ import (
 
 type Middleware interface {
 	RateLimit(next echo.HandlerFunc) echo.HandlerFunc
+	Logging() echo.MiddlewareFunc
 }
 
 type implMiddleware struct {

@@ -11,6 +11,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/redis/go-redis/v9 v9.7.3
+	github.com/sirupsen/logrus v1.9.3
 	go.uber.org/dig v1.18.1
 	golang.org/x/time v0.12.0
 	gorm.io/driver/postgres v1.5.11

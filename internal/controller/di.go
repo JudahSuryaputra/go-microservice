@@ -34,6 +34,8 @@ func Register(container *dig.Container) error {
 
 func (h *Holder) SetupRoutes(app *echo.Echo) {
 	// check app health
+	app.Use(h.InternalMiddleware.Logging())
+	app.Use(h.InternalMiddleware.RateLimit)
 	app.GET("/health", h.PlatformController.CheckSelf)
 
 	v1 := app.Group("/v1")

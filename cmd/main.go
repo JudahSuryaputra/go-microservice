@@ -7,6 +7,7 @@ import (
 	"go-microservice/internal/di"
 	"go-microservice/internal/shared"
 	"log"
+	"os"
 	"time"
 )
 
@@ -16,6 +17,7 @@ func main() {
 			app = echo.New()
 		)
 
+		print("APP_MODE: ", os.Getenv("APP_MODE"))
 		ch.SetupRoutes(app)
 
 		// Get the current time and timezone

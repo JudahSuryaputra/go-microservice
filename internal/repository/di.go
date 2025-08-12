@@ -8,11 +8,11 @@ type Holder struct {
 	dig.In
 
 	CacheRepository CacheRepository
-	DataRepository  DataRepository
+	UserRepository  UserRepository
 }
 
 func Register(container *dig.Container) error {
-	if err := container.Provide(NewDataRepository); err != nil {
+	if err := container.Provide(NewUserRepository); err != nil {
 		return err
 	}
 	if err := container.Provide(NewCacheRepository); err != nil {

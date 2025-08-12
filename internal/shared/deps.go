@@ -3,7 +3,7 @@ package shared
 import (
 	"github.com/redis/go-redis/v9"
 	"go-microservice/config"
-	"go-microservice/internal/kafka"
+	kafka2 "go-microservice/internal/di/kafka"
 	"go.uber.org/dig"
 	"gorm.io/gorm"
 )
@@ -11,7 +11,7 @@ import (
 type (
 	Deps struct {
 		dig.In
-		
+
 		DB          *gorm.DB
 		Config      *config.Configuration
 		RedisClient *redis.Client
@@ -19,10 +19,10 @@ type (
 )
 
 func Register(container *dig.Container) error {
-	if err := container.Provide(kafka.InitKafkaConsumer); err != nil {
+	if err := container.Provide(kafka2.InitKafkaConsumer); err != nil {
 		panic(err)
 	}
-	if err := container.Provide(kafka.InitKafkaProducer); err != nil {
+	if err := container.Provide(kafka2.InitKafkaProducer); err != nil {
 		panic(err)
 	}
 	return nil

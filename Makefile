@@ -1,8 +1,8 @@
 APP_NAME=go-microservice
 ENV_FILE=docker.env
-FILEBEAT_CONFIG=filebeat.yml
 
-setup: env-config filebeat-perms docker-up
+setup: env-config docker-up fix-filebeat-perms restart-filebeat
+	@echo "✅ Environment setup complete. All services are running."
 
 env-config:
 	@echo ">> Ensuring $(ENV_FILE) exists"
@@ -16,19 +16,24 @@ env-config:
 		echo 'REDIS_HOST=redis' >> $(ENV_FILE); \
 		echo 'REDIS_PORT=6379' >> $(ENV_FILE); \
 		echo "Created default $(ENV_FILE)"; \
-	fi
-
-filebeat-perms:
-	@echo ">> Setting correct permissions for $(FILEBEAT_CONFIG)"
-	@if [ -f $(FILEBEAT_CONFIG) ]; then \
-		chmod go-w $(FILEBEAT_CONFIG); \
 	else \
-		echo "WARNING: $(FILEBEAT_CONFIG) not found"; \
+		echo "$(ENV_FILE) already exists"; \
 	fi
 
 docker-up:
 	@echo ">> Building and starting containers"
-	docker compose up --build -d
+	docker compose up --build -d --no-recreate
+
+fix-filebeat-perms:
+	@echo ">> Fixing filebeat.yml permissions before starting Filebeat..."
+	@docker compose run --rm --entrypoint "" filebeat \
+		sh -c "chmod go-w filebeat.yml && chown root:root filebeat.yml"
+	@echo "Permissions fixed ✅"
+
+restart-filebeat:
+	@echo ">> Restarting Filebeat container..."
+	@docker compose restart filebeat
+	@echo "Filebeat restarted ✅"
 
 stop:
 	@echo ">> Stopping containers"
@@ -39,4 +44,3 @@ logs:
 
 rebuild:
 	@docker compose build --no-cache
-

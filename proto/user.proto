@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "microservices/b/user;user";
+
+service UserService {
+  rpc GetUser (GetUserRequest) returns (GetUserResponse);
+}
+
+message GetUserRequest {
+  int32 id = 1;
+}
+
+message GetUserResponse {
+  string name = 1;
+  int32 age = 2;
+}

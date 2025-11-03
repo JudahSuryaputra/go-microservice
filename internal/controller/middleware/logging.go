@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go-microservice/internal/shared/utils"
+	"io"
 	"os"
 	"time"
 
@@ -28,15 +29,14 @@ func (mw *implMiddleware) Logging() echo.MiddlewareFunc {
 			log.SetFormatter(&log.JSONFormatter{})
 			mw.logRequest(ctx)
 
-			// - Response
-			// Wrap the original writer
-			bdw := &utils.BodyDumpResponseWriter{
+			// - Writer
+			w := io.MultiWriter(ctx.Response().Writer, resBody)
+			writer := &utils.BodyDumpResponseWriter{
+				Writer:         w,
 				ResponseWriter: ctx.Response().Writer,
-				Body:           resBody,
 			}
-
 			// Replace Echo's writer with our wrapper
-			ctx.Response().Writer = bdw
+			ctx.Response().Writer = writer
 			// - middleware body dump end
 
 			if err := next(ctx); err != nil {
@@ -54,8 +54,8 @@ func (mw *implMiddleware) Logging() echo.MiddlewareFunc {
 // logRequest read request, and put in log
 func (mw *implMiddleware) logRequest(ctx echo.Context) {
 	var (
-		headers = ctx.Request().Header
-		reqBody []byte
+		reqHeader, _ = json.Marshal(ctx.Request().Header)
+		reqBody      []byte
 	)
 
 	// ignore health check log
@@ -63,12 +63,17 @@ func (mw *implMiddleware) logRequest(ctx echo.Context) {
 	//	return
 	//}
 
-	log.WithContext(ctx.Request().Context()).Info(
-		fmt.Sprintf("Incoming: %s \nHeaders: %s", ctx.Request().URL.String(), headers))
-	log.WithFields(log.Fields{
-		"headers": headers,
-		"request": string(reqBody),
-	})
+	// read body (and restore for handlers)
+	if ctx.Request().Body != nil {
+		b, _ := io.ReadAll(ctx.Request().Body)
+		reqBody = b
+		ctx.Request().Body = io.NopCloser(bytes.NewBuffer(b))
+	}
+
+	log.WithContext(ctx.Request().Context()).WithFields(log.Fields{
+		"headers": tryParseJSON(reqHeader),
+		"request": tryParseJSON(reqBody),
+	}).Info(fmt.Sprintf("Incoming: %s", ctx.Request().URL.String()))
 }
 
 // logResponse read response, and put in log
@@ -81,12 +86,21 @@ func (mw *implMiddleware) logResponse(ctx echo.Context, resBody *bytes.Buffer) {
 	requestTime := ctx.Get(utils.ReqTimeStart).(time.Time)
 	respHeader, _ := json.Marshal(ctx.Response().Header())
 
-	log.WithContext(ctx.Request().Context()).Info(
-		fmt.Sprintf("Outgoing: %s, to: %s", ctx.Request().URL.String(), respHeader))
-	log.WithFields(log.Fields{
+	log.WithContext(ctx.Request().Context()).WithFields(log.Fields{
 		"status":        ctx.Response().Status,
 		"response_time": fmt.Sprint(time.Since(requestTime)),
-		"headers":       string(respHeader),
-		"request":       string(resBody.Bytes()),
-	})
+		"headers":       tryParseJSON(respHeader),
+		"response":      tryParseJSON(resBody.Bytes()),
+	}).Info(fmt.Sprintf("Outgoing: %s", ctx.Request().URL.String()))
+}
+
+func tryParseJSON(b []byte) interface{} {
+	if len(b) == 0 {
+		return nil
+	}
+	var v interface{}
+	if err := json.Unmarshal(b, &v); err == nil {
+		return v // ✅ return as map[string]interface{}
+	}
+	return string(b)
 }

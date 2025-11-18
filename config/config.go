@@ -1,15 +1,17 @@
 package config
 
 import (
+	"os"
+
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
-	"os"
 )
 
 type Configuration struct {
 	DbConfig
 	RedisConfig
 	RateLimitConfig
+	JwtConfig
 
 	AppMode string `envconfig:"APP_MODE" default:"DEBUG"`
 }

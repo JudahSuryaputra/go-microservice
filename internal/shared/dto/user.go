@@ -1,8 +1,8 @@
 package dto
 
 type GetUserByIDResponse struct {
-	FullName    string
-	PhoneNumber string
+	FullName    string `json:"full_name,omitempty"`
+	PhoneNumber string `json:"phone_number,omitempty"`
 }
 
 type CreateUserRequest struct {

@@ -1,10 +1,11 @@
 package controller
 
 import (
-	"github.com/labstack/echo/v4"
 	"go-microservice/internal/controller/middleware"
 	"go-microservice/internal/controller/user"
 	"go-microservice/internal/shared"
+
+	"github.com/labstack/echo/v4"
 	"go.uber.org/dig"
 )
 
@@ -41,7 +42,7 @@ func (h *Holder) SetupRoutes(app *echo.Echo) {
 	v1 := app.Group("/v1")
 	v1.Use(h.InternalMiddleware.RateLimit)
 	{
-		v1.GET("/user", h.UserController.GetUserByID)
+		v1.GET("/user/:id", h.UserController.GetUserByID)
 	}
 
 }

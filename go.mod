@@ -5,11 +5,15 @@ go 1.24.0
 require (
 	github.com/Shopify/sarama v1.38.1
 	github.com/go-playground/validator/v10 v10.27.0
+	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/golang-jwt/jwt/v5 v5.3.0
+	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/sirupsen/logrus v1.9.3
+	github.com/spf13/cast v1.10.0
 	go.uber.org/dig v1.18.1
 	golang.org/x/time v0.12.0
 	google.golang.org/grpc v1.76.0

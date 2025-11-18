@@ -2,12 +2,13 @@ package user
 
 import (
 	"encoding/json"
-	"github.com/labstack/echo/v4"
 	"go-microservice/internal/controller/helper"
 	"go-microservice/internal/controller/helper/validation"
 	"go-microservice/internal/service"
 	"go-microservice/internal/shared"
 	"go-microservice/internal/shared/dto"
+
+	"github.com/labstack/echo/v4"
 )
 
 type (
@@ -26,7 +27,9 @@ func (c *Controller) GetUserByID(ctx echo.Context) (err error) {
 		rctx = ctx.Request().Context()
 	)
 
-	resp, err := c.services.UserService.GetUserByID(rctx, "userID")
+	userId := ctx.Param("id")
+
+	resp, err := c.services.UserService.GetUserByID(rctx, userId)
 	if err != nil {
 		return helper.ErrorResponse(ctx, err)
 	}
